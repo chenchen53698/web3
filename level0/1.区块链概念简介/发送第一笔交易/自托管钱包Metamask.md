@@ -1,6 +1,6 @@
 ### 以太坊的账户类型
 
-![以太坊账户类型](D:\studied\web3\learning\level0\1.区块链概念简介\发送第一笔交易\assets\以太坊账户类型.png)
+![以太坊账户类型](assets\以太坊账户类型.png)
 
 
 
