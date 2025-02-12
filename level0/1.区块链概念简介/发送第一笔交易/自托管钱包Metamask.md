@@ -1,6 +1,6 @@
 ### 以太坊的账户类型
 
-<img src="D:\studied\web3\learning\level0\1.区块链概念简介\picture\以太坊账户类型.png" alt="以太坊账户类型" style="zoom:100%;" />
+![以太坊账户类型](D:\studied\web3\learning\level0\1.区块链概念简介\发送第一笔交易\assets\以太坊账户类型.png)
 
 
 
@@ -12,5 +12,5 @@
 - <font color="red">助记词</font>：相当于主钥匙，可以生成多个**私钥**，丢失===丢失主账户，丢失所有的私钥
 - 私钥:每个不同的私钥都可以生成不同的地址或账户(在你的主账户下)
 
-![](D:\studied\web3\learning\level0\1.区块链概念简介\picture\以太坊账户类型.png)
+
 
