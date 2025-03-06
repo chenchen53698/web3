@@ -10,8 +10,11 @@
 */
 require("@nomicfoundation/hardhat-toolbox");
 require("@chainlink/env-enc").config();
+require("./tasks");
 const SEPOLIA_URL = process.env.SEPOLIA_URL
+const SEPOLIA_URL_1 = process.env.SEPOLIA_URL_1
 const PRIVATE_KEY = process.env.PRIVATE_KEY
+const PRIVATE_KEY_1 = process.env.PRIVATE_KEY_1
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -20,11 +23,15 @@ module.exports = {
   networks: {//网络配置
     //部署成功后，可以在https://sepolia.etherscan.io/上查看合约，但并不会像remix上一样弹出钱包，因为使用了他的私钥
     sepolia: {
-      url:SEPOLIA_URL,
-      accounts: [PRIVATE_KEY],
+      url: SEPOLIA_URL,
+      accounts: [PRIVATE_KEY,PRIVATE_KEY_1],//部署时会默认使用 accounts 数组中的第一个私钥（即 PRIVATE_KEY）作为部署账户。如果你想使用其他私钥，需要在部署脚本中显式指定。
+      chainId: 11155111
     }
   },
   etherscan: {//etherscan配置,用于验证合约
-    apiKey: ETHERSCAN_API_KEY
+    apiKey: {
+      sepolia: ETHERSCAN_API_KEY
+    }
+    // apiKey: ETHERSCAN_API_KEY
   }
 };
