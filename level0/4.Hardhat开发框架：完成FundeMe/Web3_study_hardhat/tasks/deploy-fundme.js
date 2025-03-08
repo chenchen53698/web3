@@ -1,7 +1,9 @@
 const { task } = require("hardhat/config")
 task("deploy-fundme", "deploy and verify fundme conract").setAction(async(taskArgs, hre) => {
     // create factory 
-    const fundMeFactory = await ethers.getContractFactory("FundMe")
+    const fundMeFactory = await ethers.getContractFactory("FundMe", {
+        gasPrice: ethers.parseUnits("30", "gwei"), // 设置更高的 Gas 价格
+      });   
     console.log("contract deploying")
     // deploy contract from factory
     const fundMe = await fundMeFactory.deploy(300)

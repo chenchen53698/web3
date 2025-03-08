@@ -29,6 +29,7 @@ test文件夹 用于存放用于测试contracts文件夹中合约的文件
     写在scripts中
 .env文件 用于存放敏感信息(环境变量) 第一次的项目想调用这个文件中的信息可以使用一个包dotenv
 如果明文信息不放心 可以使用一个新的依赖 .env.enc
+npx hardhat run scripts/deployFundMe.js --network sepolia
 
 验证合约:
 可以使用hardhat中的verify
