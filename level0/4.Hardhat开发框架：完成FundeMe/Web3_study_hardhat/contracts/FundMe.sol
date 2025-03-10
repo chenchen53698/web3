@@ -18,7 +18,8 @@ contract FundMe{
     uint256 constant TARGET = 1000 * 10**18;//目标值 constant 使变量变常量，使值无法被修改，一般名字使用大写字母
     uint256 deploymentTimeStamp;//部署的时间戳
     uint256 lockTime;//锁定时间
-    AggregatorV3Interface internal dataFeed;//合约内部的函数才能调用
+    // AggregatorV3Interface internal dataFeed;//合约内部的函数才能调用
+    AggregatorV3Interface public dataFeed;//修改用于测试
     address public owner;
 
     address erc20Addr;

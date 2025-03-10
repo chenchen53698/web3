@@ -11,6 +11,8 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@chainlink/env-enc").config();
 require("./tasks");
+require("hardhat-deploy");
+
 const SEPOLIA_URL = process.env.SEPOLIA_URL
 const SEPOLIA_URL_1 = process.env.SEPOLIA_URL_1
 const PRIVATE_KEY = process.env.PRIVATE_KEY
@@ -33,5 +35,14 @@ module.exports = {
       sepolia: ETHERSCAN_API_KEY
     }
     // apiKey: ETHERSCAN_API_KEY
-  }
+  },
+  namedAccounts: {//命名账户
+  // 获取networks-sepolia中accounts中下标为0,1的地址，以后可以直接使用firstAccount,secondAccount
+    firstAccount: {
+      default: 0
+    },
+    secondAccount: {
+      default: 1
+    }
+  },
 };
