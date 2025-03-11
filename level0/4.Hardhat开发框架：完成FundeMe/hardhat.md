@@ -19,6 +19,7 @@
 6. **tasks**：用于存放自定义命令的地方
 7. **test**:用于存放测试文件
 8. **deploy**：用于存放部署脚本
+9. **helper-hardhat-config.js**：用于存放一些Hardhat 项目所需的配置信息，例如网络设置、合约地址、区块链上的区块确认时间等。（本文中存放了喂价的一些常量），方便管理。
 
 
 
@@ -214,7 +215,7 @@
    8. 指令
 
       ```
-      npx hardhat deploy --tags 便签
+      npx hardhat deploy --tags 便签 --network 网络 --reset(重新部署合约，如果之前部署过依旧部署上次的)
       ```
 
    9. 官网https://www.npmjs.com/package/hardhat-deploy
@@ -421,8 +422,50 @@
 
       5. Hardhat 默认集成了 Chai，可以直接在测试中使用。
 
-   4. 
+   4. #### <font color="red">**mock合约**</font>
 
+      1. **Mock 合约** 是一种用于测试的模拟合约，通常用于**模拟外部依赖**或**复杂逻辑**。
+      2. 位置:放在contracts下，新建一个mocks文件夹用于存放mock合约。
+      3. 写法:像正常合约一样书写，或者引入。(需要**编译**和**部署**)
    
-
+   5. <font color="red">**@nomicfoundation/hardhat-network-helpers**</font>
+   
+      1. 是一个 Hardhat 插件，提供了一些实用的工具函数，用于在测试中操作 Hardhat 网络。这些工具函数可以帮助你模拟时间、区块、账户状态等，使测试更加灵活和强大。
+   
+      2. **`hardhat-network-helpers` 的核心功能**
+   
+         **1. 时间操作**
+   
+         - **`time.increase()`**：增加区块链的时间。
+         - **`time.increaseTo()`**：将区块链的时间增加到指定的时间戳。
+         - **`time.latest()`**：获取最新的区块时间戳。
+   
+         **2. 区块操作**
+   
+         - **`mine()`**：挖一个新区块。
+         - **`mineUpTo()`**：挖到指定的区块号。
+         - **`setNextBlockTimestamp()`**：设置下一个区块的时间戳。
+   
+         **3. 账户操作**
+   
+         - **`setBalance()`**：设置指定账户的余额。
+         - **`impersonateAccount()`**：模拟指定账户的行为。
+         - **`stopImpersonatingAccount()`**：停止模拟指定账户的行为。
+   
+         **4. 其他工具**
+   
+         - **`loadFixture()`**：加载并运行一个 fixture 函数，用于设置测试环境。
+         - **`takeSnapshot()`**：创建一个区块链状态的快照。
+         - **`restoreSnapshot()`**：恢复到指定的快照。
+   
+      3. 
+   
+   6. 
+   
+      
+   
+      
+   
+   
+   
    

@@ -25,9 +25,9 @@ contract FundMe{
     address erc20Addr;
     bool public getFundSuccess = false;
 
-    constructor(uint256 _lockTime){//在合约部署时进行一次调用，并且以后再也不会调用，用于初始化合约状态。
-        //sepolia testnet(测试网) ETH / USD转换比价格地址
-        dataFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
+    constructor(uint256 _lockTime,address dataFeedAddr){//在合约部署时进行一次调用，并且以后再也不会调用，用于初始化合约状态。
+        //sepolia testnet(测试网) ETH / USD转换比价格地址 0x694AA1769357215DE4FAC081bf1f309aDC325306
+        dataFeed = AggregatorV3Interface(dataFeedAddr);
         owner =msg.sender;//消息发送者
         deploymentTimeStamp = block.timestamp; //当前区块的时间戳
         lockTime = _lockTime;
