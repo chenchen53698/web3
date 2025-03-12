@@ -458,9 +458,7 @@
          - **`takeSnapshot()`**：创建一个区块链状态的快照。
          - **`restoreSnapshot()`**：恢复到指定的快照。
    
-      3. 
-   
-   6. 
+   6. npx hardhat coverage 生成覆盖报告
    
       
    

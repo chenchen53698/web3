@@ -10,3 +10,5 @@ Solidity支持try/catch语句用于处理函数调用中的异常。try/catch语
 1-7
 
 2-2
+
+# 事件日志

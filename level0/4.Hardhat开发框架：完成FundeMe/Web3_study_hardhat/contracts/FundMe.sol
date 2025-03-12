@@ -24,6 +24,8 @@ contract FundMe{
 
     address erc20Addr;
     bool public getFundSuccess = false;
+    event FundWithdrawByOwner(uint256);
+    event RefundByFunder(address,uint256);
 
     constructor(uint256 _lockTime,address dataFeedAddr){//在合约部署时进行一次调用，并且以后再也不会调用，用于初始化合约状态。
         //sepolia testnet(测试网) ETH / USD转换比价格地址 0x694AA1769357215DE4FAC081bf1f309aDC325306
@@ -85,19 +87,25 @@ contract FundMe{
         
         // call: transfer ETH with data return value of function and bool 
         bool success;
-        (success, ) = payable(msg.sender).call{value: address(this).balance}("");
+        uint256 balance = address(this).balance;
+        (success, ) = payable(msg.sender).call{value: balance}("");
         require(success, "transfer tx failed");
         fundersToAmount[msg.sender] = 0;
         getFundSuccess = true; // flag
+        //emit event
+        emit FundWithdrawByOwner(balance);
     }
     // 4.在锁定期内，没有达到目标值，投资人可以退款
     function refund() external windowClosed{
         require(convertEthToUsd(address(this).balance) < TARGET, "Target is reached");
         require(fundersToAmount[msg.sender] != 0, "there is no fund for you");//当前发送人的值不为0
         bool success;
+        uint256 balance = fundersToAmount[msg.sender];
         (success, ) = payable(msg.sender).call{value: fundersToAmount[msg.sender]}("");
         require(success, "transfer tx failed");
         fundersToAmount[msg.sender] = 0;
+        //emit event
+        emit RefundByFunder(msg.sender,balance);
     }
     //转移所有权
     function transferOwnership(address newOwner) public onlyOwner{
@@ -118,7 +126,7 @@ contract FundMe{
         _;
     }
     modifier  onlyOwner(){
-        require(msg.sender == owner,"this function can only bi called by owner");
+        require(msg.sender == owner,"this function can only be called by owner");
         _;
     }
 } 
