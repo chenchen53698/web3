@@ -7,23 +7,26 @@ import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ER
 import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-
+//这是一个copy的合约，从它的主网上
 contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable {
     uint256 private _nextTokenId;
+    //metadata 元数据的链接
+    //https://obvious-fuchsia-lizard.myfilebase.com/ipfs/xxx == ipfs://xxx
+    string constant META_DATA = "ipfs://QmbFK1Y2ic2H2UXvyxGmQiybAqyAkPPegCbLodJGW3bqMf";
 
     constructor(address initialOwner)
         ERC721("MyToken", "MTK")
         Ownable(initialOwner)
     {}
-
-    function safeMint(address to, string memory uri)
+    //safeMint函数，用于铸造NFT
+    function safeMint(address to)
         public
         onlyOwner
         returns (uint256)
     {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
+        _setTokenURI(tokenId, META_DATA);
         return tokenId;
     }
 

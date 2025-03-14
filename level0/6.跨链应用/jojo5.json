@@ -1,0 +1,20 @@
+{
+    "description": "jojo5 pic",
+    "external_url": "https://obvious-fuchsia-lizard.myfilebase.com/ipfs/QmeRXKtJojNiy6ArrpT5ZhWichueM897atWLqbdx4b2oJK",
+    "image": "https://obvious-fuchsia-lizard.myfilebase.com/ipfs/QmeRXKtJojNiy6ArrpT5ZhWichueM897atWLqbdx4b2oJK",
+    "name": "jojo5",
+    "attributes": [
+    {
+      "trait_type": "Resolution",
+      "value": "1920x1080"
+    },
+    {
+      "trait_type": "Format",
+      "value": "JPEG"
+    },
+    {
+      "trait_type": "Tags",
+      "value": ["IPFS", "Filebase", "Pinned"]
+    }
+  ]
+}
