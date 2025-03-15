@@ -14,9 +14,9 @@ contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     //https://obvious-fuchsia-lizard.myfilebase.com/ipfs/xxx == ipfs://xxx
     string constant META_DATA = "ipfs://QmbFK1Y2ic2H2UXvyxGmQiybAqyAkPPegCbLodJGW3bqMf";
 
-    constructor(address initialOwner)
-        ERC721("MyToken", "MTK")
-        Ownable(initialOwner)
+    constructor(string memory tokenName, string memory tokenSymbol)
+        ERC721(tokenName, tokenSymbol)
+        Ownable(msg.sender)
     {}
     //safeMint函数，用于铸造NFT
     function safeMint(address to)
