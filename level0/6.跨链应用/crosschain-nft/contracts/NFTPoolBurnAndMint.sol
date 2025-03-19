@@ -2,14 +2,14 @@
 pragma solidity ^0.8.24;
 
 /*
-用于锁定和解锁定，原链上的NFT池子
-从chinlink的ccip文档中copy的，根据课程进行一些修改
-    1.删除了一些安全限制，用不到的自定义错误,函数,变量等
-    2.import {MyToken} from "./MyToken.sol"; 引入了自己的NFT合约
-    3.修改了构造函数，增加了nftAddr参数   
-    4.增加了lockAndSendNFT函数，用于锁定NFT并发送CCIP交易
+用于燃烧和铸造，新链上的NFT池子
+从NFTPoolLockAndRelease copy的，根据功能不同进行一些修改
+    1.先把原链池子传来的信息进行解码在_ccipReceive函数
+    2.修改了构造函数，增加了nftAddr参数
+    3.import {WrappedMyToken} from "./WrappedMyToken.sol"; 引入了自己的NFT合约
+    4.使用WrappedMyToken中的mintWithSpecificTokenId函数进行铸造
 
-    5.在_ccipReceive函数中增加了解锁NFT的操作，将NFT从池子中转移到新的拥有者，并记录解锁事件
+    5.构建一个burnAndSendNFT函数，用于燃烧NFT并发送CCIP交易
  */
 import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
 import {OwnerIsCreator} from "@chainlink/contracts-ccip/src/v0.8/shared/access/OwnerIsCreator.sol";
@@ -17,7 +17,7 @@ import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.s
 import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications/CCIPReceiver.sol";
 import {IERC20} from "@chainlink/contracts-ccip/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@chainlink/contracts-ccip/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/utils/SafeERC20.sol";
-import {MyToken} from "./MyToken.sol";
+import {WrappedMyToken} from "./WrappedMyToken.sol";
 
 /**
  * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED VALUES FOR CLARITY.
@@ -26,9 +26,7 @@ import {MyToken} from "./MyToken.sol";
  */
 
 /// @title - A simple messenger contract for sending/receiving string data across chains.
-import "hardhat/console.sol";
-
-contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
+contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
     using SafeERC20 for IERC20;
 
     // Custom errors to provide more descriptive revert messages.
@@ -48,18 +46,15 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
     );
 
     // Event emitted when a message is received from another chain.
-    event TokenUnLocked(
-        uint256 tokenId, 
-        address newOwner
-    );
+    event TokenMinted(uint256 tokenId, address newOwner);
 
     bytes32 private s_lastReceivedMessageId; // Store the last received messageId.
     string private s_lastReceivedText; // Store the last received text.
 
     IERC20 private s_linkToken;
 
-    MyToken public nft; //我的NFT合约
-    //存储目标链传来的数据
+    WrappedMyToken public wnft; //我的NFT合约
+    //存储原链上传来的数据
     struct RequestData {
         uint256 tokenId;
         address newOwner;
@@ -74,7 +69,7 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         address nftAddr
     ) CCIPReceiver(_router) {
         s_linkToken = IERC20(_link);
-        nft = MyToken(nftAddr);
+        wnft = WrappedMyToken(nftAddr);
     }
 
     /// @dev Modifier that checks the receiver address is not 0.
@@ -84,21 +79,20 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         _;
     }
 
-    // lock NFT and send CCIP transaction（自己写的）
-    function lockAndSendNFT(
+    // burn NFT and send CCIP transaction（自己写的）
+    function burnAndSendNFT(
         uint256 tokenId,
         address newOwner,
         uint64 destChainSelector,
         address destReceiver
     ) public returns (bytes32) {
-
-        // tansfer the NFT from owner to the pool
-        //nft.transferFrom REC-721的方法，用于转移NFT 这一步就是锁定NFT
-        nft.transferFrom(msg.sender, address(this), tokenId);
-        //下属操作就是chainlink的sendMessagePayLINK中的操作
+        //wnft.transferFrom REC-721的方法，用于转移NFT
+        wnft.transferFrom(msg.sender, address(this), tokenId);
+        //wnft.burn 燃烧NFT旧的
+        wnft.burn(tokenId);
+        //下属操作就是chainlink的sendMessagePayLINK中的操作,发送CCIP消息
         //abi.encode 编码 为了传输数据
         bytes memory payload = abi.encode(tokenId, newOwner);
-
         // send request to Chainlink CCIP to send the NFT to the other Chain
         bytes32 messageId = sendMessagePayLINK(
             destChainSelector,
@@ -132,6 +126,7 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
 
         // Get the fee required to send the CCIP message
         uint256 fees = router.getFee(_destinationChainSelector, evm2AnyMessage);
+
         if (fees > s_linkToken.balanceOf(address(this)))
             revert NotEnoughBalance(s_linkToken.balanceOf(address(this)), fees);
 
@@ -159,15 +154,13 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
     function _ccipReceive(
         Client.Any2EVMMessage memory any2EvmMessage
     ) internal override {
-        s_lastReceivedMessageId = any2EvmMessage.messageId; // fetch the messageId
         // abi-decoding 解码
         RequestData memory rd = abi.decode(any2EvmMessage.data, (RequestData));
         uint256 tokenId = rd.tokenId;
         address newOwner = rd.newOwner;
-        //转移池子内的信息给新的拥有者，这一步就是解锁NFT
-        nft.transferFrom(address(this), newOwner, tokenId);
-        // emit event
-        emit TokenUnLocked(tokenId, newOwner);
+        //铸造NFT
+        wnft.mintWithSpecificTokenId(newOwner, tokenId);
+        emit TokenMinted(tokenId, newOwner);
     }
 
     /// @notice Construct a CCIP message.

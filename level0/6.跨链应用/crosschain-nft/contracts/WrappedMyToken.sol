@@ -6,7 +6,7 @@ import {MyToken} from "./MyToken.sol";
 contract WrappedMyToken is MyToken {
     constructor(string memory tokenName, string memory tokenSymbol) 
     MyToken(tokenName, tokenSymbol) {}//给父合约传递参数进行初始化
-
+    //正常项目 是需要权限控制的！
     function mintWithSpecificTokenId(address to, uint256 _tokenId) public {
         _safeMint(to, _tokenId);
     }
