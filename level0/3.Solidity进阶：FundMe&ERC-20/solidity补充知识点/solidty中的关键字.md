@@ -115,4 +115,122 @@ contract ImmutableExample {
 - **说明**: Solidity 0.6 版本开始，可以通过 `type(C)` 获取合约的类型信息。
   - `type(Hello).name`: 获取合约的名字。
   - `type(Hello).creationCode`: 获取创建合约的字节码。
-  - `type(Hello).runtimeCode`: 获取合约运行时的字节码。
+  - `type(Hello).runtimeCode`: 获取合约运行时的字节码。3
+  
+  
+
+**事件（Events）**
+
+- **事件用于与外部应用交互**，通过事件通知外部发生的合约状态变化。
+- **使用emit关键字**触发事件。
+- 示例代码：
+
+```
+pragma solidity >=0.5.0;
+contract EventExample {
+    event DataChanged(uint newValue);
+    uint public data;
+    function setData(uint _data) public {
+        data = _data;
+        emit DataChanged(_data);  // 触发事件
+    }
+}
+```
+
+
+
+#### **ABI 编码及解码函数 API**
+
+ABI（应用二进制接口）函数用于编码和解码 Solidity 中的数据类型，特别适用于合约间交互时处理复杂数据结构。多用于传输复杂数据，节流.
+
+##### **1. 编码函数**
+
+- **abi.encode(...) returns (bytes)**：对输入的参数进行 ABI 编码，返回字节数组。
+
+```
+bytes memory encodedData = abi.encode(uint(1), address(0x123));
+```
+
+- **abi.encodePacked(...) returns (bytes)**：将多个参数进行紧密打包编码，不填充到 32 字节。适用于哈希计算。
+
+```
+bytes memory packedData = abi.encodePacked(uint(1), address(0x123));
+```
+
+- **abi.encodeWithSelector(bytes4 selector, ...) returns (bytes)**：将参数编码，并在前面加上函数选择器（用于外部调用）。
+
+```
+bytes4 selector = bytes4(keccak256("transfer(address,uint256)")); 
+
+bytes memory encodedWithSelector = abi.encodeWithSelector(selector, address(0x123), 100);
+```
+
+- **abi.encodeWithSignature(string signature, ...) returns (bytes)**：通过函数签名生成函数选择器，并将参数编码。
+
+```
+bytes memory encodedWithSignature = abi.encodeWithSignature("transfer(address,uint256)", address(0x123), 100);
+```
+
+**2. 解码函数**
+
+- **abi.decode(bytes memory encodedData, (...)) returns (...)**：对编码的数据进行解码，返回解码后的参数。
+
+```
+(uint a, address b) = abi.decode(encodedData, (uint, address));
+```
+
+
+
+#### **数学和密码学函数 API**
+
+Solidity 提供了一些常用的数学与密码学函数，用于处理复杂运算和数据加密。
+
+##### **1. 数学函数**
+
+- **addmod(uint x, uint y, uint k) returns (uint)**：计算 `(x + y) % k`，在任意精度下执行加法再取模，支持大数运算。
+
+```
+uint result = addmod(10, 20, 7); // 结果为 2
+```
+
+- **mulmod(uint x, uint y, uint k) returns (uint)**：计算 `(x * y) % k`，先进行乘法再取模。
+
+```
+uint result = mulmod(10, 20, 7); // 结果为 6
+```
+
+**2. 密码学哈希函数**
+
+- **keccak256(bytes memory) returns (bytes32)**：使用 Keccak-256 算法计算哈希值（以太坊的主要哈希算法）。
+
+```
+bytes32 hash = keccak256(abi.encodePacked("Hello, World!"));
+```
+
+- **sha256(bytes memory) returns (bytes32)**：计算 SHA-256 哈希值。
+
+```
+bytes32 hash = sha256(abi.encodePacked("Hello, World!"));
+```
+
+- **ripemd160(bytes memory) returns (bytes20)**：计算 RIPEMD-160 哈希值，生成较短的 20 字节哈希值。
+
+```
+bytes20 hash = ripemd160(abi.encodePacked("Hello, World!"));
+```
+
+##### **3. 椭圆曲线签名恢复**
+
+- **ecrecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) returns (address)**：通过椭圆曲线签名恢复公钥对应的地址，常用于验证签名。
+
+```
+address signer = ecrecover(hash, v, r, s);
+```
+
+
+
+#### ABI
+
+**ABI（Application Binary Interface）** 是以太坊智能合约与外部世界（如前端应用、其他合约）交互的桥梁。它定义了如何编码和解码合约方法的调用数据，以及如何解析合约返回的数据。
+
+- ABI 通常在编译合约时自动生成，并保存在 `artifacts/` 目录下。
